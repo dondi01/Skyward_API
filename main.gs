@@ -46,18 +46,7 @@ settings:
 
 
 
-function getGlobals(global_id){// sembra che apps script non contempli variabili globali, per cui qui risiedono la versione fai da te
-  var globals = [];
-  globals[0] = 6;//riporre qui il numero colonne
-  globals[1] = 'Risposte';// qui va il nome del foglio in cui ci stanno i dati
-  globals[2] = 'Bearer xapp-1-A02JC6J2PJA-2629042217429-c5ea61ffac92081dc642283f07426a1c1d4591874ede7cf0b537e057ed4b027e'; // token autorizzazione slack, per info --> https://slack.com/intl/en-it/help/articles/215770388-Create-and-regenerate-API-tokens
-  globals[3] = 'https://hooks.slack.com/services/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'; //url a cui mandare la post request di slack, per info --> https://api.slack.com/messaging/webhooks
-  globals[4] = 'https://docs.google.com/spreadsheets/d/1UiCmZAVvtd7MWmxB5IvMJIR30FCF6S0M2bGXUuEkhBs/edit?resourcekey#gid=1167803401'; //link alla google sheet affiliata a questo apps script
-  globals[5] = 8; //numero riferimento colonna ID
-  globals[6] = 'https://script.google.com/macros/s/AKfycbzaXx63Q1-Xesi23eq4MofUONSZczLDvytETGkPmz4/dev'; // link del deployment
-  globals[7] = 7;// numero riferimento colonna stato approvazione
-  return globals[global_id];
-}
+GLOBALS OMMESSO PER INFO SENSIBILI
 
 
 function getNumRows(){// questa funzione conta il numero di righe che sono occupate 
