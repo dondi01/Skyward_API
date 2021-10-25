@@ -1,0 +1,22 @@
+_metadata:
+  major_version: 1
+  minor_version: 1
+display_information:
+  name: Skyward API
+  description: API di skyward, lato slack
+  background_color: "#3a5fcf"
+features:
+  bot_user:
+    display_name: Sheet Bot
+    always_online: true
+oauth_config:
+  scopes:
+    bot:
+      - incoming-webhook
+settings:
+  interactivity:
+    is_enabled: true
+    request_url: https://script.google.com/macros/s/AKfycbwlNDmbQQmtUqsqMPlq7H5Rmp77-65a25j2Ovqq5df4cuh0Aa_daUs8bL0RtXRP5ZxP/dev
+  org_deploy_enabled: false
+  socket_mode_enabled: false
+  token_rotation_enabled: false
