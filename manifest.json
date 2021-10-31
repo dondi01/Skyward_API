@@ -13,12 +13,11 @@ oauth_config:
   scopes:
     bot:
       - incoming-webhook
-      - commands
       - chat:write
 settings:
   interactivity:
     is_enabled: true
-    request_url: https://script.google.com/macros/s/AKfycbwlNDmbQQmtUqsqMPlq7H5Rmp77-65a25j2Ovqq5df4cuh0Aa_daUs8bL0RtXRP5ZxP/dev
+    request_url: REDACTED
   org_deploy_enabled: false
   socket_mode_enabled: false
   token_rotation_enabled: false
