@@ -17,7 +17,7 @@ oauth_config:
 settings:
   interactivity:
     is_enabled: true
-    request_url: REDACTED
+    request_url: https://script.google.com/a/macros/skywarder.eu/s/AKfycbxEiFP4zaUQ9qq7-EarjHAbPATMM-bdnBZgtVw4vJ68nc3fwDDE31AYhC02N_7Ce8Te/exec
   org_deploy_enabled: false
   socket_mode_enabled: false
   token_rotation_enabled: false

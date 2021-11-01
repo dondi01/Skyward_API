@@ -39,7 +39,7 @@ oauth_config:
 settings:
   interactivity:
     is_enabled: true
-    request_url: https://script.google.com/macros/s/AKfycbywDPKnWuReUvRITtnPq3nQFV9rYS3aSJ5DdiI4q1x1hOaAE1AN2iO69FLYxQPaSkk/exec
+    request_url: 
   org_deploy_enabled: false
   socket_mode_enabled: false
   token_rotation_enabled: false
@@ -54,13 +54,13 @@ function getGlobals(global_id){// sembra che apps script non contempli variabili
   var globals = [];
   globals[0] = 6;//riporre qui il numero colonne
   globals[1] = 'Risposte';// qui va il nome del foglio in cui ci stanno i dati
-  globals[2] = 'Bearer xoxb-2613117331923-2631060429538-KiNE7a7ZHrbTEjhNWZ9SzrsL'; // token autorizzazione slack, per info --> https://slack.com/intl/en-it/help/articles/215770388-Create-and-regenerate-API-tokens
-  globals[3] = 'https://hooks.slack.com/services/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'; //url a cui mandare la post request di slack, per info --> https://api.slack.com/messaging/webhooks
-  globals[4] = 'https://docs.google.com/spreadsheets/d/1UiCmZAVvtd7MWmxB5IvMJIR30FCF6S0M2bGXUuEkhBs/edit?resourcekey#gid=1167803401'; //link alla google sheet affiliata a questo apps script
+  globals[2] = ''; // token autorizzazione slack, per info --> https://slack.com/intl/en-it/help/articles/215770388-Create-and-regenerate-API-tokens
+  globals[3] = ''; //url a cui mandare la post request di slack, per info --> https://api.slack.com/messaging/webhooks
+  globals[4] = ''; //link alla google sheet affiliata a questo apps script
   globals[5] = 8; //numero riferimento colonna ID
-  globals[6] = 'https://script.google.com/macros/s/AKfycbw7ZcSKlRHHWv8YW_LkMw8AxYeueVcE64EJ1Smwl7RhFyn8Na_znYvCupoULnkb_F6m/exec'; // link del deployment
+  globals[6] = ''; // link del deployment
   globals[7] = 7;// numero riferimento colonna stato approvazione
-  globals[8] = 'xoxb-2613117331923-2631060429538-KiNE7a7ZHrbTEjhNWZ9SzrsL'; // token senza bearer
+  globals[8] = ''; // token senza bearer
   return globals[global_id];
 }
 
