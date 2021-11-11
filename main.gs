@@ -1,5 +1,5 @@
 // @ts-nocheck
-// CODICE SCRITTO DA Alessandro Donadi, donadi.ale@gmail.com, alessandro.donadi@mail.polimi.it, +39 3935580661
+// CODICE SCRITTO DA Alessandro Donadi, donadi.ale@gmail.com, alessandro.donadi@mail.polimi.it
 
 /*
 Nota bene:
