@@ -1,5 +1,5 @@
 // @ts-nocheck
-// CODICE SCRITTO DA Alessandro Donadi, donadi.ale@gmail.com, alessandro.donadi@mail.polimi.it, +39 3935580661
+// CODICE SCRITTO DA Alessandro Donadi, donadi.ale@gmail.com, alessandro.donadi@mail.polimi.it
 
 /*
 Nota bene:
@@ -7,9 +7,24 @@ PER IL DEPLOYMENT
  - deploy as web app
  - mettere "me" in "esegui come"
  - mettere "chiunque" in "utenti autorizzati ..."
- - prendere nota del URL della web app e scriverlo qui, servirà for future reference
+ - prendere nota del URL della web app
+ - andare a modificare l'app manifest di slack e incollare l'url precedente nel campo "request_url" e salvare l'app manifest
 
-https://script.google.com/macros/s/AKfycbxvvM9Bhe0V7mDrkmTH0OLqq_e8BWS_OATAgRyuapchLRYguI63hkMjTR33Z54MMa-6/exec
+NEL CASO SI DOVESSE REINSTALLARE L'APP (in slack) O COMUNQUE RIGENERARE ALCUNI TOKEN/LINK:
+ - generare un token su slack e aggiornare le variabili globals appropriate
+
+NEL CASO IN CUI DOVESSE CAMBIARE IL NOME DEL FOGLIO:
+ - cambiare la var globals appropriata (1)
+
+NEL CASO IN CUI DOVESSE CAMBIARE IL QUORUM:
+ - modificare la var globals 7
+
+NEL CASO IN CUI DOVESSERO ESSERE AGGIUNTI/RIMOSSI CAMPI DEL GOOGLE FORM:
+ - aggiornare i campi globals 0, 5, 7, 10
+
+
+
+
 
 
  EVENTUALI LINK UTILI:
@@ -39,7 +54,7 @@ oauth_config:
 settings:
   interactivity:
     is_enabled: true
-    request_url: 
+    request_url: https://www.randomsite.com
   org_deploy_enabled: false
   socket_mode_enabled: false
   token_rotation_enabled: false
@@ -52,15 +67,17 @@ settings:
 
 function getGlobals(global_id){// sembra che apps script non contempli variabili globali, per cui qui risiedono la versione fai da te
   var globals = [];
-  globals[0] = 6;//riporre qui il numero colonne
-  globals[1] = 'Risposte';// qui va il nome del foglio in cui ci stanno i dati
-  globals[2] = ''; // token autorizzazione slack, per info --> https://slack.com/intl/en-it/help/articles/215770388-Create-and-regenerate-API-tokens
-  globals[3] = ''; //url a cui mandare la post request di slack, per info --> https://api.slack.com/messaging/webhooks
-  globals[4] = ''; //link alla google sheet affiliata a questo apps script
-  globals[5] = 8; //numero riferimento colonna ID
-  globals[6] = ''; // link del deployment
-  globals[7] = 7;// numero riferimento colonna stato approvazione
-  globals[8] = ''; // token senza bearer
+  globals[0] = -1;//riporre qui il numero colonne
+  globals[1] = 'placeholder';// qui va il nome del foglio in cui ci stanno i dati
+  globals[2] = 'Bearer xoxb-00000000000-00000000000-000000000000000000000000'; // token autorizzazione slack, per info --> https://slack.com/intl/en-it/help/articles/215770388-Create-and-regenerate-API-tokens
+  globals[3] = 'https://www.randomsite.com'; //url a cui mandare la post request di slack, per info --> https://api.slack.com/messaging/webhooks
+  globals[4] = 'https://www.randomsite.com'; //link alla google sheet affiliata a questo apps script
+  globals[5] = -1; //numero riferimento colonna ID
+  globals[6] = 'https://www.randomsite.com'; // link del deployment
+  globals[7] = -1;// numero riferimento colonna stato approvazione
+  globals[8] = 'xoxb-00000000000-00000000000-000000000000000000000000'; // token senza bearer
+  globals[9] = -1; // quorum minimo superato il quale viene approvato 
+  globals[10] = -1; // numero riferimento colonna email
   return globals[global_id];
 }
 
@@ -79,10 +96,6 @@ function getNumRows(){// questa funzione conta il numero di righe che sono occup
   return i;
 }
 
-function debug_testGPClogger(){
-  console.log("fuck you");
-}
-
 
 function getLastDataRow(sheet){//questa funzione ritorna un array con i dati dell'ultima cosa inserita nel google sheet
   var lastRow = sheet.getLastRow();
@@ -92,14 +105,10 @@ function getLastDataRow(sheet){//questa funzione ritorna un array con i dati del
   return row_array;
 }
 
+
 function getInputSheet(){// questa funziona ritorna la sheet che 
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(getGlobals(1));
   return sheet;
-}
-
-function row_to_json(row_array){
-  var json_data = JSON.stringify(row_array);
-  return json_data;
 }
 
 function getPayload(row_array, id){
@@ -109,8 +118,10 @@ function getPayload(row_array, id){
     - c'è la doc tecnica di slack api che sipega come funziona --> https://api.slack.com/block-kit
     - l'array row_array è bidimensionale, se definiamo row_array[x][y], y è la coordinata da cambiare per accedere al contenuto delle varie colonne
   */
-
-   var payload = 
+  console.log("VAR DUMP: ");
+  console.log(JSON.stringify(row_array, null, 2));
+  console.log(row_array[0][13]);
+  var payload = 
   {
     "blocks": [
       {
@@ -129,27 +140,39 @@ function getPayload(row_array, id){
           },
           {
             "type": "mrkdwn",
-            "text": "*Dipartimento:*\n"+ row_array[0][1]
+            "text": "*Quando:*\n"+ row_array[0][0]
           },
           {
             "type": "mrkdwn",
-            "text": "*Quando:*\n"+row_array[0][0]
+            "text": "*Dipartimento/Progetto:*\n"+row_array[0][1]
           },
           {
             "type": "mrkdwn",
-            "text": "*Costo (senza IVA):*\n" + row_array[0][3]
+            "text": "*Richiedente:*\n" + row_array[0][5]
           },
           {
             "type": "mrkdwn",
-            "text": "*Costo (con IVA):*\n" + row_array[0][4]
+            "text": "*Descrizione:*\n" + row_array[0][8]
           },
           {
             "type": "mrkdwn",
-            "text": "*Progetto:*\n" + row_array[0][2]
+            "text": "*Spedizione:*\n" + row_array[0][7] + "\n" + row_array[0][11]
           },
           {
             "type": "mrkdwn",
-            "text": "*Link eventuale allegato:*\n"+ row_array[0][5]
+            "text": "*Costo (senza IVA):*\n" + row_array[0][2] + " " + row_array[0][14]
+          },
+          {
+            "type": "mrkdwn",
+            "text": "*Costo (con IVA):*\n" + row_array[0][3] + " " + row_array[0][14]
+          },
+          {
+            "type": "mrkdwn",
+            "text": "*Sito acquisto:*\n"+ row_array[0][4] + "\n" + row_array[0][13]
+          },
+          {
+            "type": "mrkdwn",
+            "text": "*Link pagina di acquisto:*\n*<"+ row_array[0][6] +"| pagina >*"
           }
         ]
       },
@@ -206,7 +229,7 @@ function addID(sheet){//questa funzione aggiunge gli ID di riferimento delle var
   return ID;
 }
 
-function pushGetApprovalStatus(approval_status, id, sheet){// questa funzione al momento non è usata
+function pushGetApprovalStatus(approval_status, id, sheet){// questa funzione al momento non è usata, serviva per scrivere nella google sheet il verdetto del consiglio nel caso in cui arrivasse una richiesta GET
   var output = "";
   if(approval_status){
     sheet.getRange(id,getGlobals(7)).setValue("Approvato");
@@ -218,7 +241,7 @@ function pushGetApprovalStatus(approval_status, id, sheet){// questa funzione al
   return output;
 }
 
-function pushPostApprovalStatus(approval_value, id, sheet){
+function pushPostApprovalStatus(approval_value, id, sheet){// questa funzione scrive il verdetto nel google form partendo dai dati arrivati in richiesta POST
   var approval_status = "error";
   if(approval_value == "approved"){
     sheet.getRange(id,getGlobals(7)).setValue("Approvato");
@@ -235,6 +258,27 @@ function pushPostApprovalStatus(approval_value, id, sheet){
   return approval_status;
 }
 
+
+function extractNumFromTxt(input_text, start_char, end_char){// questa funzione estrae un numero da input_text, quello compreso tra il carattere start_char e end_char, questi ultimi non sono compresi
+  var length = input_text.length;
+  var i = 0;
+  var id_array = [];
+  var not_found = true;
+  while(i<length && not_found){
+    if(input_text[i] == start_char){
+      var j = i;
+      do{
+        id_array[j-i] = input_text[j+1];
+        j++;
+      }while(input_text[j+1] != end_char);
+      not_found = false;
+    }
+    i++;
+  }
+  var id =  id_array.join("");
+  return id;
+}
+/*
 function getId(input_text){
   var length = input_text.length;
   var i = 0;
@@ -253,14 +297,17 @@ function getId(input_text){
   }
   var id =  id_array.join("");
   return id;
-}
+}*/
 
+/*
 function doGet(e) {// funzione il cui nome è FONDAMENTALE CHE NON VENGA CAMBIATO siccome google manda le HTTP get request in input a questa funzione
+// funzione attualmente in disuso, 
   var params = JSON.stringify(e);
   var output = pushGetApprovalStatus(e.parameter.approval,e.parameter.id, getInputSheet());
   return HtmlService.createHtmlOutput(output + params);// è FONDAMENTALE che ritorni questo, non modificare, vedere -->  https://developers.google.com/apps-script/guides/web
 }
-
+*/
+/*
 function getUserName(input_text){
   var length = input_text.length;
   var i = 0;
@@ -280,15 +327,14 @@ function getUserName(input_text){
   var user_name =  id_array.join("");
   console.log("user found --> id:" + user_name);
   return user_name;
-}
+}*/
 
-function getUserPresence(current_blocks, user_name){
+function getUserPresence(current_blocks, user_name){// verifica se un utente è già presente analizzando lo JSON mandato da slack (N.B. cercare "block" in slack api per maggiori informazioni), naviga il JSON e confronta gli id presenti, se è presente ritorna true
   var found = false;
   var length = current_blocks.length;
   if(length > 3){
     for(var i = 3; length > i ; i++){
-      //console.log("comparing " + getUserName(current_blocks[i].text.text) + " to " + user_name);
-      if(getUserName(current_blocks[i].text.text) == user_name){
+      if(extractNumFromTxt(current_blocks[i].text.text, "@", ">") == user_name){
         //console.log("user matches current user replying to the message")
         found = true;
       }
@@ -297,7 +343,7 @@ function getUserPresence(current_blocks, user_name){
   return found;
 }
 
-function getApprovalStatus(input_text){
+function getApprovalStatus(input_text){// analizza una stringa che contiene il verdetto e lo estrae
   var length = input_text.length;
   var i = 0;
   var id_array = [];
@@ -318,7 +364,7 @@ function getApprovalStatus(input_text){
   return user_name;
 }
 
-function getNumPositiveResponses(current_blocks, approval_status){
+function getNumPositiveResponses(current_blocks, approval_status, user_name){ // conta il numero di risposte che hanno approvato l'acquisto
   var tot = 0;
   var length = current_blocks.length;
   if(length<3){
@@ -328,17 +374,19 @@ function getNumPositiveResponses(current_blocks, approval_status){
       //console.log(""getApprovalStatus(current_blocks[i].text.text))
       if(getApprovalStatus(current_blocks[i].text.text) == "approvato"){
         tot++;
+        console.log("DEBUG tot (if): " + tot);
       }
     }
   }
-  if(approval_status == "approvato"){
+  if(approval_status == "approvato"  && !getUserPresence(current_blocks, user_name)){
     tot++;
+    console.log("DEBUG current approval status is: " + tot);
   }
-  console.log("number of positive responses is " + tot);
+  console.log("DEBUG number of positive responses is " + tot);
   return tot;
 }
 
-function getBlocksWithUsers(current_blocks, user_name, approval_status){
+function getBlocksWithUsers(current_blocks, user_name, approval_status){// se l'utente non è già presente concatena la sua approvazione o bocciatura
   if(getUserPresence(current_blocks, user_name)){
     console.log("user already replied, triggering modal...");
     /*
@@ -398,14 +446,21 @@ function getBlocksWithUsers(current_blocks, user_name, approval_status){
   } 
 }
 
+function getRowById(id){// seleziona una riga del google sheet in base all'id
+  var sheet = getInputSheet();
+  //console.log(getNumRows());
+  var range = sheet.getRange(id, 1, 1, getGlobals(0));
+  var row_array =range.getValues();
+  return row_array;
+}
 
-function doPost(e){
+function doPost(e){// funzione che si esegue ogni volta che arriva una richiesta post, il nome non va modificato, per maggiori informazioni: https://developers.google.com/apps-script/guides/web
   try{
 
     // lavorazione JSON
     var json_input_payload = JSON.parse(e.parameter.payload);
     var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(getGlobals(1));
-    var id = getId(json_input_payload.message.blocks[1].fields[0].text);
+    var id = extractNumFromTxt(json_input_payload.message.blocks[1].fields[0].text, "(", ")");
     var approval_status = pushPostApprovalStatus(json_input_payload.actions[0].value, id, sheet);
     var user_name = json_input_payload.user.id; 
 
@@ -415,8 +470,11 @@ function doPost(e){
 
      var non_stringified_payload = {};
 
-    if(getNumPositiveResponses(current_blocks, approval_status)>1){
-      console.log("deleting message...");
+    if(getNumPositiveResponses(current_blocks, approval_status, user_name)>getGlobals(9)){
+      var row_array = getRowById(id);
+      sendEmailApproval(row_array[0][getGlobals(10)], row_array)      
+      
+      console.log("deleting/modifing message...");
       non_stringified_payload = {// parametri per modifica o cancellazione del messaggio https://api.slack.com/interactivity/handling#payloads
       //'delete_original': true <-- per cancellare messaggi, se si cancella messaggi lasciare solo questo campo
       "replace_original": true,
@@ -443,9 +501,18 @@ function doPost(e){
   }
   return HtmlService.createHtmlOutput();
 }
-//
 
-
+function sendEmailApproval(email, row_array){ // funzione che manda un email in caso di approvazione a chi ha compilato il form
+  var subject = "Acquisto ID: " + row_array[0][getGlobals(5)-1] + " è stato approvato dal consiglio direttivo";
+  var body = "RIEPILOGO DI COSA E' STATO APPROVATO: \n" + "data e ora: " + row_array[0][0] + "\ndipartimento/progetto: " + row_array[0][1] + "\ncosto senza IVA: " + row_array[0][2] + "\ncosto con IVA: " + row_array[0][3] + "\nsito da cui fare l'acquisto: " + row_array[0][4] + "\nindirizzo email: " + row_array[0][5] + "\nLink al sito: " + row_array[0][6] + "\nSpedizione: " + row_array[0][7] + "\nDescrizione: " + row_array[0][8] + "\nQuantità: " +  row_array[0][9] + "\nNote: " + row_array[0][10];
+  try{
+    MailApp.sendEmail(email, subject ,body);
+    console.log("DEBUG email sent at " + email);
+  }catch(error){
+    console.log("ERROR, email not sent, email: " + email + " subject: " + subject + "body: " + body + " error: " + error);
+  }
+  
+}
 
 function sendSlackJSON(){ // questa è la funzione equivalente al main in C, quella che viene eseguita ad ogni update della sheet, configurabile da "attivatori" nella sidebar a sinistra
   var sheet = getInputSheet();
